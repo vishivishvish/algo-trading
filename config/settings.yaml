@@ -1,0 +1,17 @@
+# Which universe to trade. asset_class must be "us_equity" or "crypto" —
+# the broker/data interfaces are asset-agnostic, this is the only switch.
+asset_class: crypto
+symbols:
+  - BTC/USD
+  - ETH/USD
+
+strategy:
+  name: momentum
+  lookback_bars: 5
+  entry_threshold_pct: 0.3   # % move over lookback window to trigger entry
+  exit_threshold_pct: -0.1   # % move against position to trigger exit
+  timeframe: 1Min
+  position_size_usd: 100
+
+loop:
+  poll_interval_seconds: 30
