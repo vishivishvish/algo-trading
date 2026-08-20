@@ -86,11 +86,11 @@ tests/                         unit tests (pure logic, no API keys needed)
 ## Roadmap
 
 This v0 is intentionally naive — a single symbol-agnostic momentum signal
-with fixed thresholds and no risk management beyond a fixed position size.
-Planned directions (not yet built):
+with fixed thresholds and a fixed-percentage stop-loss as the only risk
+management. Planned directions (not yet built):
 
 - Backtesting engine against historical bars, with realistic slippage/fees
 - Multiple strategies + an allocator/portfolio layer instead of one strategy per symbol
-- Risk management: stop-losses, max daily drawdown, position sizing by volatility
+- Richer risk management: max daily drawdown, position sizing by volatility, trailing stops
 - Walk-forward parameter tuning instead of hand-set thresholds
 - Transition path from crypto paper trading to funded equity live trading

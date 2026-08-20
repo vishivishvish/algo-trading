@@ -10,6 +10,7 @@ strategy:
   lookback_bars: 5
   entry_threshold_pct: 0.3   # % move over lookback window to trigger entry
   exit_threshold_pct: -0.1   # % move against position to trigger exit
+  stop_loss_pct: -1.0        # % loss from entry price at which to force-exit, regardless of momentum
   timeframe: 1Min
   position_size_usd: 100
 

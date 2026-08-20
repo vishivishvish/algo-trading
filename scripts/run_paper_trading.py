@@ -56,6 +56,7 @@ def main():
         lookback_bars=settings.strategy.lookback_bars,
         position_size_usd=settings.strategy.position_size_usd,
         poll_interval_seconds=settings.poll_interval_seconds,
+        stop_loss_pct=settings.strategy.stop_loss_pct,
     )
 
     if args.once:

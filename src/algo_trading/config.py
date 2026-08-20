@@ -16,6 +16,7 @@ class StrategyConfig:
     lookback_bars: int
     entry_threshold_pct: float
     exit_threshold_pct: float
+    stop_loss_pct: float
     timeframe: str
     position_size_usd: float
 

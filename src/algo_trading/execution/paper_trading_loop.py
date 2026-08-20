@@ -24,6 +24,7 @@ class PaperTradingLoop:
         lookback_bars: int,
         position_size_usd: float,
         poll_interval_seconds: int,
+        stop_loss_pct: float,
     ):
         self.broker = broker
         self.data_feed = data_feed
@@ -33,6 +34,7 @@ class PaperTradingLoop:
         self.lookback_bars = lookback_bars
         self.position_size_usd = position_size_usd
         self.poll_interval_seconds = poll_interval_seconds
+        self.stop_loss_pct = stop_loss_pct
 
     def run_once(self):
         for symbol in self.symbols:
@@ -47,6 +49,14 @@ class PaperTradingLoop:
     def _process_symbol(self, symbol: str):
         bars = self.data_feed.get_recent_bars(symbol, self.timeframe, limit=self.lookback_bars + 1)
         position = self.broker.get_position(symbol)
+
+        if position is not None and self._stop_loss_triggered(position, bars):
+            logger.info(
+                "STOP-LOSS for %s — closing position worth $%.2f", symbol, position.market_value
+            )
+            self.broker.submit_market_order(symbol, OrderSide.SELL, position.market_value)
+            return
+
         signal = self.strategy.generate_signal(bars, has_open_position=position is not None)
 
         if signal == Signal.BUY:
@@ -57,3 +67,11 @@ class PaperTradingLoop:
             self.broker.submit_market_order(symbol, OrderSide.SELL, position.market_value)
         else:
             logger.debug("HOLD for %s", symbol)
+
+    def _stop_loss_triggered(self, position, bars) -> bool:
+        """Force-exit if price has dropped `stop_loss_pct` or worse from the
+        position's entry price, regardless of what the strategy's momentum
+        signal says — a hard floor on a single trade's loss."""
+        current_price = bars["close"].iloc[-1]
+        pct_change = (current_price - position.avg_entry_price) / position.avg_entry_price * 100
+        return pct_change <= self.stop_loss_pct
