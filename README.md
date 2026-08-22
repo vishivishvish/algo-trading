@@ -57,6 +57,11 @@ Strategy parameters (symbols, lookback, thresholds, position size, poll
 interval) live in [`config/settings.yaml`](config/settings.yaml) — no code
 changes needed to tune them.
 
+**Max daily loss:** if cumulative realized P&L across all symbols drops to
+`-risk.max_daily_loss_usd` or worse, the loop halts all trading (it keeps
+polling and logging, but stops placing orders) for the rest of that run.
+There is no automatic reset — restart the process to resume trading.
+
 ## Running tests
 
 ```bash
@@ -66,7 +71,7 @@ python -m pytest tests/ -v
 ## Project structure
 
 ```
-config/settings.yaml           strategy + runtime config (asset class, symbols, thresholds)
+config/settings.yaml           strategy + runtime config (asset class, symbols, thresholds, risk limits)
 src/algo_trading/
   broker/
     base.py                    abstract Broker interface (asset-agnostic)
@@ -86,11 +91,12 @@ tests/                         unit tests (pure logic, no API keys needed)
 ## Roadmap
 
 This v0 is intentionally naive — a single symbol-agnostic momentum signal
-with fixed thresholds and a fixed-percentage stop-loss as the only risk
-management. Planned directions (not yet built):
+with fixed thresholds, a fixed-percentage stop-loss per trade, and a max
+daily loss circuit breaker as the only risk management. Planned directions
+(not yet built):
 
 - Backtesting engine against historical bars, with realistic slippage/fees
 - Multiple strategies + an allocator/portfolio layer instead of one strategy per symbol
-- Richer risk management: max daily drawdown, position sizing by volatility, trailing stops
+- Richer risk management: position sizing by volatility, trailing stops, per-symbol loss caps
 - Walk-forward parameter tuning instead of hand-set thresholds
 - Transition path from crypto paper trading to funded equity live trading

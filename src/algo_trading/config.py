@@ -27,6 +27,7 @@ class Settings:
     symbols: list
     strategy: StrategyConfig
     poll_interval_seconds: int
+    max_daily_loss_usd: float
     alpaca_api_key: str
     alpaca_secret_key: str
     alpaca_paper: bool
@@ -44,6 +45,7 @@ def load_settings(path: Path = None) -> Settings:
         symbols=raw["symbols"],
         strategy=strategy,
         poll_interval_seconds=raw["loop"]["poll_interval_seconds"],
+        max_daily_loss_usd=raw["risk"]["max_daily_loss_usd"],
         alpaca_api_key=os.environ.get("ALPACA_API_KEY", ""),
         alpaca_secret_key=os.environ.get("ALPACA_SECRET_KEY", ""),
         alpaca_paper=os.environ.get("ALPACA_PAPER", "true").lower() == "true",

@@ -44,7 +44,7 @@ class FakeStrategy(Strategy):
         return Signal.HOLD
 
 
-def _make_loop(position, closes, stop_loss_pct):
+def _make_loop(position, closes, stop_loss_pct, max_daily_loss_usd=1_000_000):
     broker = FakeBroker(position=position)
     loop = PaperTradingLoop(
         broker=broker,
@@ -56,6 +56,7 @@ def _make_loop(position, closes, stop_loss_pct):
         position_size_usd=100,
         poll_interval_seconds=30,
         stop_loss_pct=stop_loss_pct,
+        max_daily_loss_usd=max_daily_loss_usd,
     )
     return loop, broker
 
@@ -84,3 +85,26 @@ def test_no_stop_loss_check_when_flat():
     loop.run_once()
 
     assert broker.orders == []
+
+
+def test_max_daily_loss_halts_trading_after_breach():
+    position = Position(symbol="BTC/USD", qty=1, avg_entry_price=100.0, market_value=85.0, unrealized_pl=-15.0)
+    loop, broker = _make_loop(position, closes=[100, 95, 90, 85], stop_loss_pct=-1.0, max_daily_loss_usd=10)
+
+    loop.run_once()  # stop-loss fires, realized loss $15 breaches the $10 daily cap
+
+    assert broker.orders == [("BTC/USD", OrderSide.SELL, 85.0)]
+    assert loop.trading_halted is True
+
+    loop.run_once()  # a second poll should do nothing — halted until manually restarted
+
+    assert broker.orders == [("BTC/USD", OrderSide.SELL, 85.0)]
+
+
+def test_max_daily_loss_not_triggered_by_small_losses():
+    position = Position(symbol="BTC/USD", qty=1, avg_entry_price=100.0, market_value=98.0, unrealized_pl=-2.0)
+    loop, broker = _make_loop(position, closes=[100, 99.5, 99, 98], stop_loss_pct=-1.0, max_daily_loss_usd=10)
+
+    loop.run_once()
+
+    assert loop.trading_halted is False

@@ -14,5 +14,11 @@ strategy:
   timeframe: 1Min
   position_size_usd: 100
 
+risk:
+  # Cumulative realized loss (USD, across all symbols) at which the loop
+  # halts all trading. Stays halted until the process is manually restarted
+  # — no automatic reset at midnight or otherwise.
+  max_daily_loss_usd: 20
+
 loop:
   poll_interval_seconds: 30

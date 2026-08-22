@@ -57,6 +57,7 @@ def main():
         position_size_usd=settings.strategy.position_size_usd,
         poll_interval_seconds=settings.poll_interval_seconds,
         stop_loss_pct=settings.strategy.stop_loss_pct,
+        max_daily_loss_usd=settings.max_daily_loss_usd,
     )
 
     if args.once:
