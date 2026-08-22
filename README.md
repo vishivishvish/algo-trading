@@ -79,6 +79,19 @@ the loop halts trading on that symbol only (it keeps polling and logging,
 but stops placing orders for it) — other symbols are unaffected. There is
 no automatic reset — restart the process to resume trading.
 
+## Historical sanity check
+
+```bash
+python scripts/historical_sanity_check.py --bars 1000
+```
+
+Pulls recent historical bars from Alpaca and replays the current strategy +
+stop-loss + max-daily-loss rules over them, printing trade count, win/loss
+split, and total realized P&L per symbol. This is a quick gut-check, not a
+real backtester — no slippage/fees, no order queue, and it currently gets
+however many bars Alpaca's free crypto client actually returns (can be less
+than `--bars`).
+
 ## Running tests
 
 ```bash
@@ -101,8 +114,9 @@ src/algo_trading/
     momentum.py                v0 momentum strategy
   execution/
     paper_trading_loop.py      polls data -> strategy -> broker, on a timer
-scripts/run_paper_trading.py   entry point wiring config + components together
-tests/                         unit tests (pure logic, no API keys needed)
+scripts/run_paper_trading.py         entry point wiring config + components together
+scripts/historical_sanity_check.py   one-off replay of strategy rules over historical bars
+tests/                                unit tests (pure logic, no API keys needed)
 ```
 
 ## Roadmap
