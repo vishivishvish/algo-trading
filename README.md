@@ -11,6 +11,22 @@ Everything — strategy logic, data analysis, backtesting, order placement —
 runs from scripts here. The only thing that happens outside this repo is
 occasionally checking positions/fills in the Alpaca dashboard.
 
+## Features
+
+- **Momentum strategy (v0):** buy when price momentum over a lookback window
+  clears an entry threshold, sell on a pullback ([`momentum.py`](src/algo_trading/strategy/momentum.py))
+- **Paper trading loop:** polls the data feed on an interval, runs the
+  strategy per symbol, submits orders through the broker ([`paper_trading_loop.py`](src/algo_trading/execution/paper_trading_loop.py))
+- **Asset-agnostic broker/data interfaces:** same code path for crypto and
+  US equities; switching asset class is a one-line config change
+- **Per-trade stop-loss:** force-exits a position once price drops
+  `stop_loss_pct` from entry, independent of the momentum exit signal
+- **Per-symbol max daily loss circuit breaker:** halts trading on a symbol
+  once its cumulative realized loss for the run breaches `max_daily_loss_usd`;
+  other symbols keep trading; no auto-reset, requires a manual restart
+- **Unit tests** for strategy and loop logic (fake broker/data-feed/strategy,
+  no API keys needed)
+
 ## Why Alpaca
 
 - Free Python SDK (`alpaca-py`) built for programmatic trading — no manual
@@ -57,10 +73,11 @@ Strategy parameters (symbols, lookback, thresholds, position size, poll
 interval) live in [`config/settings.yaml`](config/settings.yaml) — no code
 changes needed to tune them.
 
-**Max daily loss:** if cumulative realized P&L across all symbols drops to
-`-risk.max_daily_loss_usd` or worse, the loop halts all trading (it keeps
-polling and logging, but stops placing orders) for the rest of that run.
-There is no automatic reset — restart the process to resume trading.
+**Max daily loss:** each symbol tracks its own cumulative realized P&L for
+the run. Once a symbol's P&L drops to `-risk.max_daily_loss_usd` or worse,
+the loop halts trading on that symbol only (it keeps polling and logging,
+but stops placing orders for it) — other symbols are unaffected. There is
+no automatic reset — restart the process to resume trading.
 
 ## Running tests
 
@@ -91,12 +108,12 @@ tests/                         unit tests (pure logic, no API keys needed)
 ## Roadmap
 
 This v0 is intentionally naive — a single symbol-agnostic momentum signal
-with fixed thresholds, a fixed-percentage stop-loss per trade, and a max
-daily loss circuit breaker as the only risk management. Planned directions
-(not yet built):
+with fixed thresholds, a fixed-percentage stop-loss per trade, and a
+per-symbol max daily loss circuit breaker as the only risk management.
+Planned directions (not yet built):
 
 - Backtesting engine against historical bars, with realistic slippage/fees
 - Multiple strategies + an allocator/portfolio layer instead of one strategy per symbol
-- Richer risk management: position sizing by volatility, trailing stops, per-symbol loss caps
+- Richer risk management: position sizing by volatility, trailing stops
 - Walk-forward parameter tuning instead of hand-set thresholds
 - Transition path from crypto paper trading to funded equity live trading

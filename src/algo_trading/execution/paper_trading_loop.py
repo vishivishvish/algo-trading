@@ -37,15 +37,14 @@ class PaperTradingLoop:
         self.poll_interval_seconds = poll_interval_seconds
         self.stop_loss_pct = stop_loss_pct
         self.max_daily_loss_usd = max_daily_loss_usd
-        self.realized_pnl_today = 0.0
-        self.trading_halted = False
+        self.realized_pnl_today = {symbol: 0.0 for symbol in symbols}
+        self.halted_symbols = set()
 
     def run_once(self):
-        if self.trading_halted:
-            logger.debug("Trading halted for the day — skipping poll")
-            return
-
         for symbol in self.symbols:
+            if symbol in self.halted_symbols:
+                logger.debug("Trading halted for %s — skipping poll", symbol)
+                continue
             self._process_symbol(symbol)
 
     def run_forever(self):
@@ -83,18 +82,20 @@ class PaperTradingLoop:
     def _close_position(self, symbol: str, position, reason: str):
         logger.info("%s for %s — closing position worth $%.2f", reason, symbol, position.market_value)
         self.broker.submit_market_order(symbol, OrderSide.SELL, position.market_value)
-        self._record_realized_pnl(position.unrealized_pl)
+        self._record_realized_pnl(symbol, position.unrealized_pl)
 
-    def _record_realized_pnl(self, pnl: float):
-        """Track cumulative P&L for the day. Once losses breach
-        `max_daily_loss_usd`, halt all further trading — the loop keeps
-        polling (so this stays observable) but stops acting until the
-        process is restarted."""
-        self.realized_pnl_today += pnl
-        if not self.trading_halted and self.realized_pnl_today <= -self.max_daily_loss_usd:
-            self.trading_halted = True
+    def _record_realized_pnl(self, symbol: str, pnl: float):
+        """Track cumulative P&L per symbol for the day. Once a symbol's losses
+        breach `max_daily_loss_usd`, halt trading on that symbol only — other
+        symbols keep trading. Stays halted until the process is restarted."""
+        self.realized_pnl_today[symbol] += pnl
+        pnl_today = self.realized_pnl_today[symbol]
+        if symbol not in self.halted_symbols and pnl_today <= -self.max_daily_loss_usd:
+            self.halted_symbols.add(symbol)
             logger.warning(
-                "MAX DAILY LOSS breached (realized P&L $%.2f <= -$%.2f) — halting trading until restarted",
-                self.realized_pnl_today,
+                "MAX DAILY LOSS breached for %s (realized P&L $%.2f <= -$%.2f) — halting %s until restarted",
+                symbol,
+                pnl_today,
                 self.max_daily_loss_usd,
+                symbol,
             )

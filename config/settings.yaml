@@ -15,9 +15,10 @@ strategy:
   position_size_usd: 100
 
 risk:
-  # Cumulative realized loss (USD, across all symbols) at which the loop
-  # halts all trading. Stays halted until the process is manually restarted
-  # — no automatic reset at midnight or otherwise.
+  # Cumulative realized loss (USD), tracked separately per symbol, at which
+  # the loop halts trading on that symbol (other symbols keep trading).
+  # Stays halted until the process is manually restarted — no automatic
+  # reset at midnight or otherwise.
   max_daily_loss_usd: 20
 
 loop:
