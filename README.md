@@ -94,7 +94,7 @@ than `--bars`).
 
 **Findings (2026-08-22, ~450 1-min bars per symbol):** BTC/USD ‑$0.65 over
 6 trades (2W/4L), ETH/USD ‑$2.10 over 11 trades (2W/9L) — net negative on
-both, no stop-loss or daily-halt triggers fired. Root cause from the
+both, no stop-loss or daily-halt triggers fired. The root cause from the
 trade-by-trade log: entries barely clear the 0.3% threshold (buying the top
 of a noise-level blip, not a real trend), while the exit is a *rolling*
 5-bar momentum reading rather than P&L from entry — so it lags a sharp
