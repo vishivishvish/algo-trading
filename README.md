@@ -98,7 +98,7 @@ both, no stop-loss or daily-halt triggers fired. The root cause from the
 trade-by-trade log: entries barely clear the 0.3% threshold (buying the top
 of a noise-level blip, not a real trend), while the exit is a *rolling*
 5-bar momentum reading rather than P&L from entry — so it lags a sharp
-reversal and losers (‑0.14% to ‑0.57%) run bigger than winners (+0.07% to
+reversal and losers (‑0.14% to ‑0.57%) run larger than winners (+0.07% to
 +0.17%) before the exit fires. At 1-min crypto resolution, 0.3%/‑0.1% sit
 inside normal price noise, and none of this includes real fees/spread,
 which would make live results worse. Conclusion: the thresholds need
@@ -144,3 +144,5 @@ Planned directions (not yet built):
 - Richer risk management: position sizing by volatility, trailing stops
 - Walk-forward parameter tuning instead of hand-set thresholds
 - Transition path from crypto paper trading to funded equity live trading
+
+<!-- readme-grammar-pass: 2026-09-22 -->
