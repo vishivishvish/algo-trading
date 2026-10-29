@@ -145,4 +145,4 @@ Planned directions (not yet built):
 - Walk-forward parameter tuning instead of hand-set thresholds
 - Transition path from crypto paper trading to funded equity live trading
 
-<!-- readme-grammar-pass: 2026-10-20 -->
+<!-- readme-grammar-pass: 2026-10-29 -->
