@@ -19,7 +19,7 @@ occasionally checking positions/fills in the Alpaca dashboard.
   strategy per symbol, submits orders through the broker ([`paper_trading_loop.py`](src/algo_trading/execution/paper_trading_loop.py))
 - **Asset-agnostic broker/data interfaces:** same code path for crypto and
   US equities; switching asset class is a one-line config change
-- **Per-trade stop-loss:** force-exits a position once price drops
+- **Per-trade stop-loss:** force-exits a position once the price drops
   `stop_loss_pct` from entry, independent of the momentum exit signal
 - **Per-symbol max daily loss circuit breaker:** halts trading on a symbol
   once its cumulative realized loss for the run breaches `max_daily_loss_usd`;
