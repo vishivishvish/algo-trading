@@ -4,7 +4,7 @@ Intraday algorithmic trading system. The seed strategy is a naive momentum
 scalper — buy when price momentum over a short lookback clears a threshold,
 sell on a pullback, repeat many times a day. The goal is for this to evolve
 in complexity over time (better signals, risk management, portfolio-level
-logic, backtesting rigor) toward a long-run target of ~15% XIRR, beating
+logic, backtesting rigor) towards a long-run target of ~15% XIRR, beating
 index returns.
 
 Everything — strategy logic, data analysis, backtesting, order placement —
